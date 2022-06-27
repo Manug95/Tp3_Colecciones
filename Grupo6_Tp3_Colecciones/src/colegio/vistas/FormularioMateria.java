@@ -12,6 +12,9 @@ import javax.swing.JOptionPane;
  */
 public class FormularioMateria extends javax.swing.JInternalFrame {
     private HashSet<Materia> todasLasMaterias;
+    private boolean idOk = false;
+    private boolean nombreOk = false;
+    private boolean anioOk = false;
     /**
      * Creates new form FormularioMateria
      * @param todasLasMaterias es el conjunto donde estan todas las materias del colegio
@@ -59,6 +62,11 @@ public class FormularioMateria extends javax.swing.JInternalFrame {
         });
 
         jtNombre.setText("jTextField2");
+        jtNombre.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jtNombreFocusLost(evt);
+            }
+        });
 
         jtAnio.setText("jTextField3");
         jtAnio.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -159,8 +167,12 @@ public class FormularioMateria extends javax.swing.JInternalFrame {
 
     private void jtIdFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jtIdFocusLost
         try{
-            int id = Integer.parseInt(jtId.getText());
+            if(!jtId.getText().isEmpty()){
+                int id = Integer.parseInt(jtId.getText());
+                idOk = true;
+            }
         }catch (NumberFormatException nfe) {
+            idOk = false;
             JOptionPane.showMessageDialog(this, "La ID Debe Ser un Número!");
             jtId.requestFocus();
         }
@@ -168,8 +180,12 @@ public class FormularioMateria extends javax.swing.JInternalFrame {
 
     private void jtAnioFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jtAnioFocusLost
         try{
-            int anio = Integer.parseInt(jtAnio.getText());
+            if(!jtAnio.getText().isEmpty()){
+                int anio = Integer.parseInt(jtAnio.getText());
+                anioOk = true;
+            }
         }catch (NumberFormatException nfe) {
+            anioOk = false;
             JOptionPane.showMessageDialog(this, "El Año Debe Ser un Número!");
             jtAnio.requestFocus();
         }
@@ -177,22 +193,74 @@ public class FormularioMateria extends javax.swing.JInternalFrame {
 
     private void jbNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbNuevoActionPerformed
         limpiarCampos();
+        idOk = false;
+        anioOk = false;
+        nombreOk = false;
+        jtId.requestFocus();
     }//GEN-LAST:event_jbNuevoActionPerformed
 
     private void jbGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbGuardarActionPerformed
-        Materia materia = new Materia();
-        
-        materia.setId(Integer.parseInt(jtId.getText()));
-        materia.setNombre(jtNombre.getText());
-        materia.setAnio(Integer.parseInt(jtAnio.getText()));
-        
-        if(todasLasMaterias.add(materia)){
-            JOptionPane.showMessageDialog(this, "Materia Guardada con Éxito!");
+        if(revisarCamposVacios()){
+            if(idOk && anioOk && nombreOk){
+                Materia materia = new Materia();
+
+                materia.setId(Integer.parseInt(jtId.getText()));
+                materia.setNombre(jtNombre.getText());
+                materia.setAnio(Integer.parseInt(jtAnio.getText()));
+
+                if(todasLasMaterias.add(materia)){
+                    limpiarCampos();
+                    jtId.requestFocus();
+                    JOptionPane.showMessageDialog(this, "Materia Guardada con Éxito!");
+                }else{
+                    JOptionPane.showMessageDialog(this, "Esta Materia ya Está Guardada!");
+                }
+            }else{
+                JOptionPane.showMessageDialog(this, "Hay Campos Incorrectos!");
+            }
         }else{
-            JOptionPane.showMessageDialog(this, "Esta Materia ya Está Guardada!");
+            JOptionPane.showMessageDialog(this, "Hay Campos Vacíos!");
         }
     }//GEN-LAST:event_jbGuardarActionPerformed
 
+    private void jtNombreFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jtNombreFocusLost
+        if(validarTexto(jtNombre.getText())){
+            nombreOk = true;
+        }else{
+            nombreOk = false;
+            JOptionPane.showMessageDialog(this, "Nombre Incorrecto!");
+            jtNombre.requestFocus();
+        }
+    }//GEN-LAST:event_jtNombreFocusLost
+
+    /**
+     * Comprueba si un Nombre es Correcto
+     * @param texto es el String del Campo que se va a Validar
+     * @return true si es un Texto Correcto, false si no lo es
+     */
+    private boolean validarTexto(String texto){
+        boolean bandera = true;
+        int i = 0;
+        while(bandera && i < texto.length()){
+            char c = texto.charAt(i);
+            if(!Character.isLetter(c) && !Character.isSpaceChar(c)){
+                bandera = false;
+            }
+            i++;
+        }
+        return bandera;
+    }
+    
+    /**
+     * @return true Si No Hay Campos Vacios
+     */
+    private boolean revisarCamposVacios(){
+        String legajo = jtId.getText();
+        String apellido = jtAnio.getText();
+        String nombre = jtNombre.getText();
+        
+        return (!legajo.isEmpty() && !apellido.isEmpty() && !nombre.isEmpty());
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
